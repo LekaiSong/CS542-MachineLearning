@@ -92,22 +92,19 @@ def advanced(state, AI_move):
         if(state == 1): res = random.randrange(0,2)
         if(state == 2): res = random.randint(0,1)
         return res
-    else: strategy(state)
+    else: 
+        x = strategy(state)
+        return x
  
 if __name__ == "__main__":
-    AI_move = queue.Queue(maxsize=2) #copy of AI_move to trigger def advanced()
-    AI_move2 = queue.Queue(maxsize=2)
+    AI_move = queue.Queue(maxsize=2)
     while(True):
         state = int(input("Current state of AI? 0-Rock,1-Scissor,2-Paper,Else-Random:"))
         if (AI_move.full() == True):
             AI_move.get()
+            print(type(AI_move.get()))
             AI_move.put(state)
         else: AI_move.put(state)
-            
-        if (AI_move2.full() == True):
-            AI_move2.get()
-            AI_move2.put(state)
-        else: AI_move2.put(state)
         
         if (AI_move.full() == True):
             res = advanced(state, AI_move)
