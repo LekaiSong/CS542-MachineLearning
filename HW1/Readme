@@ -1,0 +1,17 @@
+HW1
+RockScissorPaper Prediction
+http://www.essentially.net/rsp/play.jsp
+
+Functions:
+(1) Def (strategy):
+Assuming that the computer's move is only depending on the previous one move, we can regard the rock-paper-scissors game as a Markov chain, and calculate the transition probability between states from the result of 100 tries we collected. Thus we have a transition probability matrix P=[p00,p01,p02; p10,p11,p12; p20,p21,p22]. For example, p21 means the probability of that state 2 transfers to state 1. Of course, p20+p21+p22=p2=1. Then, we can set up a random number (probability), and see which part of p2 it falls in, to predict the next move of the computer.
+
+(2) Def (advanced):
+After testing, I found that sometimes the computer’s moves and mine will be stuck into a situation where everyone does not change their moves for rounds. But we know whoever turns first will break the deadlock and increase the winning rate. Thereby import a queue to record the computer's recent moves. If there is a deadlock (e.g., the computer’s recent two moves are rocks), our next move will be paper or rock (at least to tie). This program takes precedence over strategy.
+
+Potential Improvements:
+(1) If data is adequate (larger than 100 tries), there is a higher possibility to find out what pattern and algorithm the computer uses, then predict the next move more accurately. 
+
+(2) We can also increase the queue length, and record more computer’s moves. This way we can probably find some representative order of the moves.
+
+(3) Meanwhile, record our moves, consider the possible links between our moves and computer’s moves, and look for patterns.
