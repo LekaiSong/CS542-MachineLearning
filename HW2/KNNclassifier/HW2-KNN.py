@@ -8,7 +8,6 @@ def impute_missing_data():
     data_testing = pd.read_csv('crx.data.testing', header=None, na_values='?')
     data_training = data_training.fillna({0:'b'}) #column0 nan->b
     data_testing = data_testing.fillna({0:'b'})
-    
     data_training[1] = data_training[1].fillna(data_training[1].mean()) #column1 nan->mean
     data_training[13] = data_training[13].fillna(data_training[13].mean()) #column13 nan->mean
     data_testing[1] = data_testing[1].fillna(data_testing[1].mean())
@@ -81,12 +80,12 @@ def predict(train_data, test_data, k, which_set):
             else: predicts.append(1)
         elif which_set == 2:
             plus = minus = 0
-            for line_dist in neighbor_array: # (row,dist)
-                if train_data[line_dist[0]][-1] == "+": # line_dist[0] is an exact row, train_data[line_dist[0]] is the row of original dataset, train_data[line_dist[0]][-1] is label column
+            for line_dist in neighbor_array: #(row,dist)
+                if train_data[line_dist[0]][-1] == "+": #line_dist[0] is an exact row, train_data[line_dist[0]] is the row of original dataset, train_data[line_dist[0]][-1] is label column
                     plus += 1
                 else:
                     minus += 1
-            if plus > minus: # e.g. [(+)(+)(-)]
+            if plus > minus: #e.g. [(+)(+)(-)]
                 predicts.append("+")
             else:
                 predicts.append("-")
@@ -98,13 +97,14 @@ def predict(train_data, test_data, k, which_set):
 def accuracy(labels_pred, test_data):
     labels_true = []
     correct = 0.0
-    for each_row in test_data: # for [] in [[][][]..]
+    for each_row in test_data: #for [] in [[][][]..]
         labels_true.append(each_row[-1])
     for i in range(len(labels_pred)):
         if labels_pred[i] == labels_true[i]:
             correct += 1
     return float(correct/len(labels_pred))
 
+import matplotlib.pyplot as plt
 if __name__ == "__main__":
     train_data, test_data = impute_missing_data()
     x, y = normalize_features(train_data, test_data)
@@ -116,11 +116,31 @@ if __name__ == "__main__":
         k_num = int(input("What is k? enter a number: "))
         res1 = predict(a, b, k_num, in_num)
         print("accuracy = ", accuracy(res1, b), "when k = ", k_num, "and dataset is lenses")
+        k_num_axis = [2, 4, 6, 8, 10, 12, 14, 16]
+        accuracy_axis = []
+        for k in k_num_axis:
+            res1_axis = predict(a, b, k, in_num)
+            accuracy_axis.append(accuracy(res1_axis, b))
+        plt.plot(k_num_axis, accuracy_axis, "b--", linewidth=1)
+        plt.xlabel("k")
+        plt.ylabel("Accuracy")
+        plt.title("Lenses Dataset")
+        plt.show()
     if (in_num == 2):
         print("The maximum of k is", len(x))
         k_num = int(input("What is k? enter a number: "))
         res2 = predict(x, y, k_num, in_num)
         print("accuracy = ", accuracy(res2, y), "when k = ", k_num, "and dataset is crx")
+        k_num_axis = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+        accuracy_axis = []
+        for k in k_num_axis:
+            res2_axis = predict(x, y, k, in_num)
+            accuracy_axis.append(accuracy(res2_axis, y))
+        plt.plot(k_num_axis, accuracy_axis, "b--", linewidth=1)
+        plt.xlabel("k")
+        plt.ylabel("Accuracy")
+        plt.title("Crx Dataset")
+        plt.show()
 
 
 #Extra useful codes
