@@ -1,4 +1,4 @@
-# CS542-MachineLearning
+# MachineLearning
 ### HW1: RSP game
 ### HW2: KNN / LR
 ### HW3: Sparse Autoencoder
