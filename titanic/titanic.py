@@ -165,7 +165,7 @@ LE = LabelEncoder()
 for feature in features:
     LE = LE.fit(combine_df[feature])
     combine_df[feature] = LE.transform(combine_df[feature])
-print("Data Cleaning done")
+print("Data Cleaning Done")
 
 X_all = combine_df.iloc[:891,:].drop(["PassengerId","Survived"], axis=1)
 Y_all = combine_df.iloc[:891,:]["Survived"]
@@ -206,7 +206,7 @@ print(X_all.columns)
 print("--------------------------------------------------------")
 
 '''
-#tune model with hyperparameter
+#Tune model with hyperparameter
 #You dont need to tune the hyperparameters every time actually, unless you modified the Feature Enginnering above.
 
 #knn - k
@@ -270,31 +270,36 @@ gsearch1 = GridSearchCV(estimator = RandomForestClassifier(min_samples_split=100
                        param_grid = param_test1, scoring='roc_auc',cv=5)
 gsearch1.fit(X_all.values,Y_all.values)
 #print(gsearch1.grid_scores_)
-print("For RF, the best n is", gsearch1.best_params_, "score is", gsearch1.best_score_) #result: n=410
+print("For RF, the best n_estimators is", gsearch1.best_params_, "score is", gsearch1.best_score_) #result: n=410
+para1 = gsearch1.best_params_['n_estimators']
 print("--------------------------------------------------------")
 
-param_test2 = {'max_depth':range(1,15), 'min_samples_split':range(10,200,10)}
-gsearch2 = GridSearchCV(estimator = RandomForestClassifier(n_estimators=410, min_samples_leaf=20, max_features='sqrt', oob_score=True, random_state=10),
+param_test2 = {'max_depth':range(1,15), 'min_samples_split':range(10,100,10)}
+gsearch2 = GridSearchCV(estimator = RandomForestClassifier(n_estimators=para1, min_samples_leaf=20, max_features='sqrt', oob_score=True, random_state=10),
                         param_grid = param_test2, scoring='roc_auc',iid=False, cv=5)
 gsearch2.fit(X_all.values,Y_all.values)
 #print(gsearch2.grid_scores_)
 print("For RF, the best max_depth and min_samples_split are", gsearch2.best_params_, "score is", gsearch2.best_score_) #result: max_depth=6, min_samples_split=30(double check below)
+para2 = gsearch2.best_params_['max_depth']
 print("--------------------------------------------------------")
 
-param_test3 = {'min_samples_split':range(2,30), 'min_samples_leaf':range(1,5)}
-gsearch3 = GridSearchCV(estimator = RandomForestClassifier(n_estimators=410, max_depth=6, max_features='sqrt', oob_score=True, random_state=10),
+param_test3 = {'min_samples_split':range(2,15), 'min_samples_leaf':range(1,5)}
+gsearch3 = GridSearchCV(estimator = RandomForestClassifier(n_estimators=para1, max_depth=para2, max_features='sqrt', oob_score=True, random_state=10),
                         param_grid = param_test3, scoring='roc_auc',iid=False, cv=5)
 gsearch3.fit(X_all.values,Y_all.values)
 #print(gsearch3.grid_scores_)
 print("For RF, the best min_samples_leaf and _split are", gsearch3.best_params_, "score is", gsearch3.best_score_) #result: min_samples_leaf=1, min_samples_split=4
+para3 = gsearch3.best_params_['min_samples_split']
+para4 = gsearch3.best_params_['min_samples_leaf']
 print("--------------------------------------------------------")
 
 param_test4 = {'max_features':range(1,5)}
-gsearch4 = GridSearchCV(estimator = RandomForestClassifier(n_estimators=410, max_depth=6, min_samples_split=4, min_samples_leaf=1, oob_score=True, random_state=10),
+gsearch4 = GridSearchCV(estimator = RandomForestClassifier(n_estimators=para1, max_depth=para2, min_samples_split=para3, min_samples_leaf=para4, oob_score=True, random_state=10),
                         param_grid = param_test4, scoring='roc_auc',iid=False, cv=5)
 gsearch4.fit(X_all.values,Y_all.values)
 #print(gsearch4.grid_scores_)
 print("For RF, the best max_features is", gsearch4.best_params_, "score is", gsearch4.best_score_) #result: max_features=4
+para5 = gsearch4.best_params_['max_features']
 print("--------------------------------------------------------")
 
 #gbdt
@@ -304,38 +309,44 @@ gsearch1 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1
 gsearch1.fit(X_all.values,Y_all.values)
 #print(gsearch1.grid_scores_)
 print("For gbdt, the best n is", gsearch1.best_params_, "score is", gsearch1.best_score_) #result: n=160
+para1 = gsearch1.best_params_['n_estimators']
 print("--------------------------------------------------------")
 
 param_test2 = {'max_depth':range(1,15), 'min_samples_split':range(100,300,20)}
-gsearch2 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=160, min_samples_leaf=20, max_features='sqrt', subsample=0.8, random_state=10), 
+gsearch2 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=para1, min_samples_leaf=20, max_features='sqrt', subsample=0.8, random_state=10), 
                         param_grid = param_test2, scoring='roc_auc',iid=False, cv=5)
 gsearch2.fit(X_all.values,Y_all.values)
 #print(gsearch2.grid_scores_)
 print("For gbdt, the best max_depth and min_samples_split are", gsearch2.best_params_, "score is", gsearch2.best_score_) #result: max_depth=5, min_samples_split=260(double check below)
+para2 = gsearch2.best_params_['max_depth']
 print("--------------------------------------------------------")
 
 param_test3 = {'min_samples_split':range(10,150,10), 'min_samples_leaf':range(1,15)}
-gsearch3 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=160, max_depth=5, max_features='sqrt', subsample=0.8, random_state=10), 
+gsearch3 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=para1, max_depth=para2, max_features='sqrt', subsample=0.8, random_state=10), 
                         param_grid = param_test3, scoring='roc_auc',iid=False, cv=5)
 gsearch3.fit(X_all.values,Y_all.values)
 #print(gsearch3.grid_scores_)
 print("For gbdt, the best min_samples_leaf and _split are", gsearch3.best_params_, "score is", gsearch3.best_score_) #result: min_samples_leaf=3, min_samples_split=130
+para3 = gsearch3.best_params_['min_samples_split']
+para4 = gsearch3.best_params_['min_samples_leaf']
 print("--------------------------------------------------------")
 
 param_test4 = {'max_features':range(1,5)}
-gsearch4 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=160, max_depth=5, min_samples_leaf=3, min_samples_split=130, subsample=0.8, random_state=10), 
+gsearch4 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=para1, max_depth=para2, min_samples_leaf=para4, min_samples_split=para3, subsample=0.8, random_state=10), 
                         param_grid = param_test4, scoring='roc_auc',iid=False, cv=5)
 gsearch4.fit(X_all.values,Y_all.values)
 #print(gsearch4.grid_scores_)
 print("For gbdt, the best max_features is", gsearch4.best_params_, "score is", gsearch4.best_score_) #result: max_features=2
+para5 = gsearch4.best_params_['max_features']
 print("--------------------------------------------------------")
 
 param_test5 = {'subsample':[0.6,0.7,0.75,0.8,0.85,0.9]}
-gsearch5 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=160, max_depth=5, min_samples_leaf=3, min_samples_split=130, max_features=2, random_state=10), 
+gsearch5 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate=0.1, n_estimators=para1, max_depth=para2, min_samples_leaf=para4, min_samples_split=para3, max_features=para5, random_state=10), 
                         param_grid = param_test5, scoring='roc_auc',iid=False, cv=5)
 gsearch5.fit(X_all.values,Y_all.values)
 #print(gsearch5.grid_scores_)
 print("For gbdt, the best subsample is", gsearch5.best_params_, "score is", gsearch5.best_score_) #result: subsample=0.8
+para6 = gsearch5.best_params_['subsample']
 print("--------------------------------------------------------")
 
 #decision tree
@@ -358,7 +369,8 @@ print("For xgb, the best parameters are", gsearch1.best_params_, "score is", gse
 print("--------------------------------------------------------")
 '''
 
-#Optimize models, best parameters above maybe not also best for test set. Thus optimize slightly according to result.  
+#Optimize models, best hyperparameters above maybe not also best for test set. Thus optimize slightly according to result. 
+#If you got new hyperparameters, plug them into following models instead of old ones manually. 
 LR = LogisticRegression(penalty='l1')
 svc = SVC(C=3.0, kernel='poly')
 knn = KNeighborsClassifier(n_neighbors = 17)
@@ -394,15 +406,15 @@ print("Scores of models:")
 for i in range(7):
     print(ag[i],cv_means[i])
 
-#voting classifier
+#voting classifier (select which models to ensemble)
 models = []
-models.append(('xgb',xgb))
+#models.append(('xgb',xgb))
 models.append(('svc',svc))
 models.append(('gbdt',gbdt))
 models.append(('RF',RF))
-models.append(('LR',LR))
-models.append(('DT',DT))
-models.append(('knn',knn))
+#models.append(('LR',LR))
+#models.append(('DT',DT))
+#models.append(('knn',knn))
 #print(models)
 ensemble_model = VotingClassifier(estimators=models)
 scores = cross_val_score(ensemble_model, X_all.values, Y_all.values, cv=kfold)
